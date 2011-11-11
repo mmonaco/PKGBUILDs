@@ -23,7 +23,7 @@ source=(
 
 md5sums=(
 	edbdc798f23ae0f8045c82f6fa22c536
-	7e9e5ab92839909b71bb8055e9eb3750
+	57ac8a6ae1656cde97213d4882fa4a87
 )
 
 build() {
