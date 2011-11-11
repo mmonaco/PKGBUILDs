@@ -31,9 +31,9 @@ build() {
 	git archive --remote=$_gitroot v$_kver drivers/input/mouse | tar -x
 
 	cd "drivers/input/mouse"
-	
+
 	md5sum --quiet -c $srcdir/MD5SUMS
-	
+
 	patch -p4 -i "$srcdir/synled.patch"
 
 	make -C "/lib/modules/$(uname -r)/build" M="$PWD" psmouse.ko
