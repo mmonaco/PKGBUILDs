@@ -1,11 +1,11 @@
 # Maintainer: Matthew Monaco <dgbaley27@0x01b.net>
 
-_kver=3.1
+_kver=3.2
 _gitroot=git://repo.or.cz/linux-2.6.git
 
 pkgname=synaptics-led
 pkgver=$_kver
-pkgrel=2
+pkgrel=1
 
 arch=(i686 x86_64)
 license=(GPL2)
@@ -22,7 +22,7 @@ source=(
 )
 
 md5sums=(
-	74bd2141b9b27adcfd45310b6948825a
+	aaa8feb74d9e072d85d5a717e9eac1fb
 	f153464322a531a58aa6fd999fb6ddd0
 )
 
