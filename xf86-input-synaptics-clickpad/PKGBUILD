@@ -6,9 +6,10 @@
 # Contributor: Alexander Baldeck <alexander@archlinux.org>
 
 _realname=xf86-input-synaptics
+_suseurl='FILE::https://api.opensuse.org/public/source/openSUSE:Factory/xorg-x11-driver-input/FILE?rev=67f06298aa561ce2152cad26f92cf4ae&'
 pkgname=$_realname-clickpad
 pkgver=1.5.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Synaptics driver for notebook touchpads (with clickpad and led support)"
 arch=('i686' 'x86_64')
 license=('custom')
@@ -24,15 +25,38 @@ groups=('xorg-drivers' 'xorg')
 options=(!libtool)
 backup=('etc/X11/xorg.conf.d/10-synaptics.conf')
 source=(http://xorg.freedesktop.org/releases/individual/driver/${_realname}-${pkgver}.tar.bz2
-        synaptics-clickpad-support.patch
+        ${_suseurl//FILE/xf86-input-synaptics-wait.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-settings.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-add-clickpad-support.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-clickpad-doc-update.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-add-led-support.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-led-double-tap.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-fix-clickpad-capabilities.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-clickpad-threshold.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-move-threshold.diff}
+        ${_suseurl//FILE/xf86-input-synaptics-filter-bogus-coord.diff}
         10-synaptics.conf)
 sha1sums=('7373c1e3f02bf7e18f71b65762a982d907b4a053'
-          '23dd5ca4838acc0a4cd04dbba8ba19c9c27e84ca'
+          '3355a0beeb0e655a9f0ab5ff08e76ba62beb76f6'
+          '8207af069b4a8b18d46ae4142782f6dfe26c9818'
+          '61f4f0cc4a071985447c6f0c7ce11c060e829aa1'
+          'a5880fc68b1888177a04b467c92a74d2c13997dc'
+          'ff0c6bcb85d32b84273b3e132c2f0fe94503e903'
+          'cfce7d9d231358a67d7d9d930fe7f38cdadd39c7'
+          'af02cb73fa4f46e63789d64ca711826c7659e445'
+          'd1d2609a45eaeb5ae76ca73f7c88e0374f6b83b6'
+          'a94d408dd464e61a09d7c5338f03c241ebdbd60e'
+          'f0e7b679c9e3027db69d9d3c0af7bd1b896d88a6'
           '68e1f4ef5e1038231d210eb422fa4d18c5922f0f')
 
 build() {
   cd "${srcdir}/${_realname}-${pkgver}"
-  patch -p1 -i ../synaptics-clickpad-support.patch
+  for p in "${source[@]}"; do
+    p="${p%%::*}"
+    [[ "$p" =~ ^.+\.diff$ ]] || continue
+    msg2 "Applying patch: $p"
+    patch -p1 -i "../$p"
+  done
   ./configure --prefix=/usr
   make
 }
