@@ -23,10 +23,10 @@ b22f81fe1d8f13650cf1a9a823bfd269  pc110pad.c
 a43352ca371f3b56268d82aeb836ff74  psmouse.h
 0ea52c1d68cac3b1a3d941cc793b0a46  pxa930_trkball.c
 5fd228834102a21b86b96889374c8dab  rpcmouse.c
-1f5c98f220e92ba486971b50c6f87f4a  sentelic.c
-221d5ab02c5d06f887f061be5d6ade5e  sentelic.h
+191c899069dac34a732cfeaa6da81b9c  sentelic.c
+69c86d1f5522fc12b5bd06d1af3bd793  sentelic.h
 5ebe42a7a44b3b807ea3a3ad9efa7190  sermouse.c
-45de7242719fe966505b8a955fe17dcc  synaptics.c
+ec9ae0caf988b7903b4c72a46ed8b8ba  synaptics.c
 98d7e83f3611b9cdfb7614506c2f7459  synaptics.h
 fac968b918afb11f74479971995bb8b8  synaptics_i2c.c
 5d397529bb908baef0e7c73611860028  touchkit_ps2.c
