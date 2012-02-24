@@ -1,0 +1,28 @@
+# Maintainer:  Matthew Monaco <net 0x01b matt>
+# Contributor: Rogof <com gmail fake.bios>
+
+_gemname=cucumber
+pkgname=$_gemname
+pkgver=1.1.9
+pkgrel=2
+pkgdesc="Behaviour Driven Development with elegance and joy"
+arch=(any)
+url="http://cukes.info/"
+license=('GPL')
+depends=('ruby' 'ruby-builder>=2.1.2' 'ruby-diff-lcs>=1.1.2' 'ruby-gherkin>=2.9.0'
+         'ruby-json>=1.4.6' 'ruby-term-ansicolor>=1.0.6')
+makedepends=(rubygems)
+source=(http://gems.rubyforge.org/gems/$_gemname-$pkgver.gem)
+noextract=($_gemname-$pkgver.gem)
+md5sums=('a4e2af0009967f982a02177f2231c216')
+
+package() {
+
+	cd "$srcdir"
+	local _gemdir="$(ruby -rubygems -e'puts Gem.default_dir')"
+	gem install --no-user-install --ignore-dependencies --verbose \
+	            -i "$pkgdir$_gemdir" -n "$pkgdir/usr/bin" \
+	            $_gemname-$pkgver.gem
+}
+
+# vim: set noet :
