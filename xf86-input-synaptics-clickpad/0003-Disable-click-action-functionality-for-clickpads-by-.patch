@@ -1,0 +1,47 @@
+From 569c44f01cb3b0637e424b9ba29659ff79fbc33c Mon Sep 17 00:00:00 2001
+From: Chase Douglas <chase.douglas@canonical.com>
+Date: Mon, 6 Feb 2012 11:32:56 -0800
+Subject: [PATCH 03/10] Disable click action functionality for clickpads by
+ default
+
+Clickpad press-and-drag with two fingers will break click actions.
+Disable them for these devices by default until a good solution is found
+for letting both functionalities co-exist.
+
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ src/synaptics.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/synaptics.c b/src/synaptics.c
+index e20d6a8..34e7552 100644
+--- a/src/synaptics.c
++++ b/src/synaptics.c
+@@ -428,7 +428,7 @@ static void set_default_parameters(InputInfoPtr pInfo)
+     int pressureMotionMinZ, pressureMotionMaxZ;		/* pressure */
+     int palmMinWidth, palmMinZ;				/* pressure */
+     int tapButton1, tapButton2, tapButton3;
+-    int clickFinger1, clickFinger2, clickFinger3;
++    int clickFinger1 = 0, clickFinger2 = 0, clickFinger3 = 0;
+     Bool vertEdgeScroll, horizEdgeScroll;
+     Bool vertTwoFingerScroll, horizTwoFingerScroll;
+     int horizResolution = 1;
+@@ -495,9 +495,12 @@ static void set_default_parameters(InputInfoPtr pInfo)
+ 
+     /* Enable multifinger-click if only have one physical button,
+        otherwise clickFinger is always button 1. */
+-    clickFinger1 = 1;
+-    clickFinger2 = (priv->has_right || priv->has_middle) ? 1 : 3;
+-    clickFinger3 = (priv->has_right || priv->has_middle) ? 1 : 2;
++    if (pars->clickpad)
++    {
++        clickFinger1 = 1;
++        clickFinger2 = (priv->has_right || priv->has_middle) ? 1 : 3;
++        clickFinger3 = (priv->has_right || priv->has_middle) ? 1 : 2;
++    }
+ 
+     /* Enable vert edge scroll if we can't detect doubletap */
+     vertEdgeScroll = priv->has_double ? FALSE : TRUE;
+-- 
+1.7.9.2
+

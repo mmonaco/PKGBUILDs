@@ -1,73 +1,80 @@
-# Maintainer:  Jesse Jaara <jaara@gmail.com>
-# Contributor: Matt Monaco <dgbaley27@0x01b.net>
-# Contributor: Jan de Groot <jgc@archlinux.org>
+# [aur]
+# Maintainer:  Jesse Jaara <com gmail jaara>
+# Contributor: Matt Monaco <net 0x01b dgbaley27>
+
+# [extra]
+# Maintainer: Jan de Groot <jgc@archlinux.org>
 # Contributor: Tobias Powalowski  <tpowa@archlinux.org>
 # Contributor: Thomas Bächler <thomas@archlinux.org>
 # Contributor: Alexander Baldeck <alexander@archlinux.org>
 
-_realname=xf86-input-synaptics
-_suseurl='FILE::https://api.opensuse.org/public/source/openSUSE:Factory/xorg-x11-driver-input/FILE?rev=67f06298aa561ce2152cad26f92cf4ae&'
-pkgname=$_realname-clickpad
-pkgver=1.5.0
-pkgrel=3
+pkgname=xf86-input-synaptics-clickpad
+pkgver=1.5.99
+pkgrel=0.2
+_gitver=dfc3a8ed713c2878407c6443c4d3092da3125e0c
 pkgdesc="Synaptics driver for notebook touchpads (with clickpad and led support)"
 arch=('i686' 'x86_64')
 license=('custom')
 url="http://xorg.freedesktop.org/"
 depends=('libxtst')
-makedepends=('xorg-server-devel>=1.10.99.902' 'libxi' 'libx11')
+makedepends=('xorg-server-devel>=1.11.99.902' 'libxi' 'libx11')
 optdepends=('synaptics-led')
-conflicts=('xorg-server<1.10.99.902')
+conflicts=('xorg-server<1.11.99.902')
 replaces=('synaptics')
-provides=('synaptics' $_realname)
-conflicts=('synaptics' $_realname)
+provides=('synaptics' "${pkgname/-clickpad/}")
+conflicts=('synaptics' "${pkgname/-clickpad/}")
 groups=('xorg-drivers' 'xorg')
 options=(!libtool)
 backup=('etc/X11/xorg.conf.d/10-synaptics.conf')
-source=(http://xorg.freedesktop.org/releases/individual/driver/${_realname}-${pkgver}.tar.bz2
-        ${_suseurl//FILE/xf86-input-synaptics-wait.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-settings.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-add-clickpad-support.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-clickpad-doc-update.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-add-led-support.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-led-double-tap.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-fix-clickpad-capabilities.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-clickpad-threshold.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-move-threshold.diff}
-        ${_suseurl//FILE/xf86-input-synaptics-filter-bogus-coord.diff}
+source=(#http://xorg.freedesktop.org/releases/individual/driver/${pkgname/-clickpad/}-${pkgver}.tar.bz2
+		http://cgit.freedesktop.org/xorg/driver/xf86-input-synaptics/snapshot/xf86-input-synaptics-${_gitver}.tar.gz
+        0001-Add-clickpad-device-property.patch
+        0002-Check-for-clickpad-property.patch
+        0003-Disable-click-action-functionality-for-clickpads-by-.patch
+        0004-Add-cumulative_d-x-y-to-SynapticsHwState.patch
+        0005-Enable-clickpad-click-and-drag-with-two-fingers.patch
+        0006-Disable-scrolling-when-beginning-a-clickpad-press.patch
+        0007-Calculate-touch-data-for-semi-mt-devices-but-don-t-s.patch
+        0008-Add-soft-button-areas-property.patch
+        0009-Don-t-use-linear-regression-when-calculating-touchpa.patch
+        0010-Ignore-motion-during-touch-count-changes-on-semi-mt-.patch
         10-synaptics.conf)
-sha1sums=('7373c1e3f02bf7e18f71b65762a982d907b4a053'
-          '3355a0beeb0e655a9f0ab5ff08e76ba62beb76f6'
-          '8207af069b4a8b18d46ae4142782f6dfe26c9818'
-          '61f4f0cc4a071985447c6f0c7ce11c060e829aa1'
-          'a5880fc68b1888177a04b467c92a74d2c13997dc'
-          'ff0c6bcb85d32b84273b3e132c2f0fe94503e903'
-          'cfce7d9d231358a67d7d9d930fe7f38cdadd39c7'
-          'af02cb73fa4f46e63789d64ca711826c7659e445'
-          'd1d2609a45eaeb5ae76ca73f7c88e0374f6b83b6'
-          'a94d408dd464e61a09d7c5338f03c241ebdbd60e'
-          'f0e7b679c9e3027db69d9d3c0af7bd1b896d88a6'
-          '68e1f4ef5e1038231d210eb422fa4d18c5922f0f')
+md5sums=('3d59fa70092b7e603a2e8192fe8f964e'
+         '16c4b5258968b8f0c46db8a954f9d61e'
+         '398eb399d28745a4ab678104d4cec2f3'
+         '6def9f8cf9dd4ca7487a446244cf59d0'
+         '26154006c5f7fb14db3d7be99f127e42'
+         '4c7c33021723e3d081dafda591d6599e'
+         '6cb32832c28f5a4976274ed6cdb20252'
+         '18b8c9e4b905c82e0c024252f5013ce1'
+         '6970f11c96925c70a5dbd73424f39c91'
+         'ef4ec0c055e622afbdadc38653646440'
+         '6ebbab554f6c33fe492c79bba4544d8e'
+         '3b81a81b958dfe3cac3cdef7ee85f1ce')
 
 build() {
-  cd "${srcdir}/${_realname}-${pkgver}"
-  for p in "${source[@]}"; do
-    p="${p%%::*}"
-    [[ "$p" =~ ^.+\.diff$ ]] || continue
-    msg2 "Applying patch: $p"
-    patch -p1 -i "../$p"
+#  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd ${srcdir}/${pkgname/-clickpad/}*
+
+  msg2 "Applying clickpad patches"
+
+  for p in "$srcdir"/00*.patch; do
+  	  patch -p1 -i $p
   done
+
+  autoreconf -fi
   ./configure --prefix=/usr
   make
 }
 
 package() {
-  cd "${srcdir}/${_realname}-${pkgver}"
+  #cd "${srcdir}/${pkgname}-${pkgver}"
+  cd ${srcdir}/${pkgname/-clickpad/}*
   make DESTDIR="${pkgdir}" install
   install -m755 -d "${pkgdir}/etc/X11/xorg.conf.d"
   install -m644 "${srcdir}/10-synaptics.conf" "${pkgdir}/etc/X11/xorg.conf.d/"
-  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname/-clickpad/}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname/-clickpad/}/"
 
   rm -rf "${pkgdir}/usr/share/X11"
 }

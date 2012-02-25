@@ -1,0 +1,41 @@
+From 862b68b2614590ac24edaf5e740d78a286795233 Mon Sep 17 00:00:00 2001
+From: Chase Douglas <chase.douglas@canonical.com>
+Date: Thu, 9 Feb 2012 16:56:29 -0800
+Subject: [PATCH 10/10] Ignore motion during touch count changes on semi-mt
+ devices
+
+Semi-mt devices do not track touches. The locations of touches are
+unknown, we only have the bounding box of two of them. We the number of
+fingers changes, the bounding box coordinates may change as well, but
+the cumulative relative motion updates at that instant are invalid.
+
+To work around this, ignore changes in cumulative relative motion if the
+touch count changes.
+
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ src/synaptics.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/synaptics.c b/src/synaptics.c
+index 74b31c6..649650f 100644
+--- a/src/synaptics.c
++++ b/src/synaptics.c
+@@ -1585,6 +1585,14 @@ ReadInput(InputInfoPtr pInfo)
+     SynapticsResetTouchHwState(hw);
+ 
+     while (SynapticsGetHwState(pInfo, priv, hw)) {
++	/* Semi-mt device touch slots do not track touches. When there is a
++	 * change in the number of touches, we must disregard the temporary
++	 * motion changes. */
++	if (priv->has_semi_mt && hw->numFingers != priv->hwState->numFingers) {
++	    hw->cumulative_dx = priv->hwState->cumulative_dx;
++	    hw->cumulative_dy = priv->hwState->cumulative_dy;
++	}
++
+ 	SynapticsCopyHwState(priv->hwState, hw);
+ 	delay = HandleState(pInfo, hw, hw->millis, FALSE);
+ 	newDelay = TRUE;
+-- 
+1.7.9.2
+

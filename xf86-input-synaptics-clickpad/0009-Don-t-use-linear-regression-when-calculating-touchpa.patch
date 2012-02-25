@@ -1,0 +1,48 @@
+From 1d193d1bd8f308b8b5993b790883bcc1a5dfe432 Mon Sep 17 00:00:00 2001
+From: Chase Douglas <chase.douglas@canonical.com>
+Date: Thu, 9 Feb 2012 16:22:35 -0800
+Subject: [PATCH 09/10] Don't use linear regression when calculating touchpad
+ motion deltas
+
+The results depend on the data rate of the device. A device with a
+higher data rate, and thus lower individual deltas, will behave
+differently with the regression calculation.
+
+This can be verified on Synaptics semi-mt clickpads. The data rate is
+halved when two or more touches are on the device. When trying to press
+a button and drag the cursor with another touch, the motion will feel
+faster than dragging with only one touch on the device.
+
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ src/synaptics.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/synaptics.c b/src/synaptics.c
+index 34f9dc0..74b31c6 100644
+--- a/src/synaptics.c
++++ b/src/synaptics.c
+@@ -2159,9 +2159,8 @@ get_delta(SynapticsPrivate *priv, const struct SynapticsHwState *hw,
+     int x_edge_speed = 0;
+     int y_edge_speed = 0;
+ 
+-    /* HIST is full enough: priv->count_packet_finger > 3 */
+-    *dx = estimate_delta(hw->x, HIST(0).x, HIST(1).x, HIST(2).x);
+-    *dy = estimate_delta(hw->y, HIST(0).y, HIST(1).y, HIST(2).y);
++    *dx = hw->x - HIST(0).x;
++    *dy = hw->y - HIST(0).y;
+ 
+     if ((priv->tap_state == TS_DRAG) || para->edge_motion_use_always)
+         get_edge_speed(priv, hw, edge, &x_edge_speed, &y_edge_speed);
+@@ -2230,7 +2229,7 @@ ComputeDeltas(SynapticsPrivate *priv, const struct SynapticsHwState *hw,
+      * POLL_MS declaration. */
+     delay = MIN(delay, POLL_MS);
+ 
+-    if (priv->count_packet_finger <= 3) /* min. 3 packets, see get_delta() */
++    if (priv->count_packet_finger <= 1)
+         goto out; /* skip the lot */
+ 
+     if (priv->moving_state == MS_TRACKSTICK)
+-- 
+1.7.9.2
+
