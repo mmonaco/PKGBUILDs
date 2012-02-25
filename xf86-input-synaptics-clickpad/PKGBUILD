@@ -56,9 +56,10 @@ build() {
 #  cd "${srcdir}/${pkgname}-${pkgver}"
   cd ${srcdir}/${pkgname/-clickpad/}*
 
-  msg2 "Applying clickpad patches"
+  msg "Applying clickpad patches"
 
   for p in "$srcdir"/00*.patch; do
+  	  msg2 "Applying $(basename $p)"
   	  patch -p1 -i $p
   done
 
