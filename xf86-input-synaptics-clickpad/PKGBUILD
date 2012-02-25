@@ -38,6 +38,8 @@ source=(#http://xorg.freedesktop.org/releases/individual/driver/${pkgname/-click
         0008-Add-soft-button-areas-property.patch
         0009-Don-t-use-linear-regression-when-calculating-touchpa.patch
         0010-Ignore-motion-during-touch-count-changes-on-semi-mt-.patch
+        0098-led-support.patch
+        0099-led-double-tap.patch
         10-synaptics.conf)
 md5sums=('3d59fa70092b7e603a2e8192fe8f964e'
          '16c4b5258968b8f0c46db8a954f9d61e'
@@ -50,6 +52,8 @@ md5sums=('3d59fa70092b7e603a2e8192fe8f964e'
          '6970f11c96925c70a5dbd73424f39c91'
          'ef4ec0c055e622afbdadc38653646440'
          '6ebbab554f6c33fe492c79bba4544d8e'
+         '549f9e6b6837c25dfa742e5dd0ae3988'
+         '6e8189aed09097f28046e66682a62fd8'
          '3b81a81b958dfe3cac3cdef7ee85f1ce')
 
 build() {
