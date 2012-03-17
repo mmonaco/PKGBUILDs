@@ -1,0 +1,187 @@
+From f8d9dd1c9710f99d3c402517782ae7ba5ef208eb Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Mon, 10 May 2010 18:15:48 +0200
+Subject: [PATCH 3/7] Add the embedded LED support
+
+This patch adds the control of the embedded LED on the top-left corner
+of new Synaptics devices.  For LED control, it requires the patch to
+Linux synaptics input driver,
+	https://patchwork.kernel.org/patch/92434/
+
+When a sysfs file /sys/class/leds/psmouse::synaptics exists, the driver
+assumes it supports the embeded LED control.
+
+The LED can be controlled via new properties, "Synaptics LED" and
+"Synaptics LED Status".
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ include/synaptics-properties.h |    6 ++++++
+ man/synaptics.man              |    9 +++++++++
+ src/eventcomm.c                |   32 +++++++++++++++++++++++++++++++-
+ src/properties.c               |   15 +++++++++++++++
+ src/synapticsstr.h             |    2 ++
+ src/synproto.h                 |    1 +
+ tools/synclient.c              |    1 +
+ 7 files changed, 65 insertions(+), 1 deletion(-)
+
+--- a/include/synaptics-properties.h
++++ b/include/synaptics-properties.h
+@@ -158,4 +158,10 @@
+ /* 32 Bit Integer, 2 values, horizontal hysteresis, vertical hysteresis */
+ #define SYNAPTICS_PROP_NOISE_CANCELLATION "Synaptics Noise Cancellation"
+ 
++/* 8 bit (BOOL, read-only), has_led */
++#define SYNAPTICS_PROP_LED "Synaptics LED"
++
++/* 8 bit (BOOL), led_status (on/off) */
++#define SYNAPTICS_PROP_LED_STATUS "Synaptics LED Status"
++
+ #endif /* _SYNAPTICS_PROPERTIES_H_ */
+--- a/man/synaptics.man
++++ b/man/synaptics.man
+@@ -936,6 +936,15 @@
+ .BI "Synaptics Pad Resolution"
+ 32 bit unsigned, 2 values (read-only), vertical, horizontal in units/millimeter.
+ 
++.TP 7
++.BI "Synaptics LED"
++8 bit (BOOL, read-only), indicating whether the device has an embedded
++LED support or not.
++
++.TP 7
++.BI "Synaptics LED Status"
++8 bit (BOOL), the light status of the embedded LED.
++
+ .SH "NOTES"
+ Configuration through
+ .I InputClass
+--- a/src/eventcomm.c
++++ b/src/eventcomm.c
+@@ -48,6 +48,8 @@
+ #define LONG_BITS (sizeof(long) * 8)
+ #define NBITS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
+ 
++#define SYNAPTICS_LED_SYS_FILE	"/sys/class/leds/psmouse::synaptics/brightness"
++
+ /**
+  * Protocol-specific data.
+  */
+@@ -242,6 +244,32 @@
+ }
+ 
+ 
++static void
++event_query_led(InputInfoPtr pInfo)
++{
++    SynapticsPrivate *priv = (SynapticsPrivate *)pInfo->private;
++
++    priv->synpara.has_led = !access(SYNAPTICS_LED_SYS_FILE, W_OK);
++}
++
++static void EventUpdateLED(InputInfoPtr pInfo)
++{
++    SynapticsPrivate *priv = (SynapticsPrivate *)pInfo->private;
++
++    if (priv->synpara.has_led) {
++        char *val = priv->synpara.led_status ? "255" : "0";
++        int fd = open(SYNAPTICS_LED_SYS_FILE, O_WRONLY);
++        int err;
++
++        if (fd < 0)
++            return;
++        err = write(fd, val, strlen(val));
++        close(fd);
++        if (err < 0)
++	    xf86IDrvMsg(pInfo, X_WARNING, "can't write LED value %s\n", val);
++    }
++}
++
+ /* Query device for axis ranges */
+ static void
+ event_query_axis_ranges(InputInfoPtr pInfo)
+@@ -508,6 +536,7 @@
+ 
+     if (event_query_is_touchpad(pInfo->fd, (proto_data) ? proto_data->need_grab : TRUE))
+ 	event_query_axis_ranges(pInfo);
++    event_query_led(pInfo);
+     event_query_model(pInfo->fd, &priv->model, &priv->id_vendor, &priv->id_product);
+ 
+     xf86IDrvMsg(pInfo, X_PROBED, "Vendor %#hx Product %#hx\n",
+@@ -598,5 +627,6 @@
+     EventQueryHardware,
+     EventReadHwState,
+     EventAutoDevProbe,
+-    EventReadDevDimensions
++    EventReadDevDimensions,
++    EventUpdateLED,
+ };
+--- a/src/properties.c
++++ b/src/properties.c
+@@ -94,6 +94,8 @@
+ Atom prop_noise_cancellation    = 0;
+ Atom prop_product_id            = 0;
+ Atom prop_device_node           = 0;
++Atom prop_led                   = 0;
++Atom prop_led_status            = 0;
+ 
+ static Atom
+ InitAtom(DeviceIntPtr dev, char *name, int format, int nvalues, int *values)
+@@ -296,6 +298,9 @@
+     prop_noise_cancellation = InitAtom(pInfo->dev,
+             SYNAPTICS_PROP_NOISE_CANCELLATION, 32, 2, values);
+ 
++    prop_led = InitAtom(pInfo->dev, SYNAPTICS_PROP_LED, 8, 1, &para->has_led);
++    prop_led_status = InitAtom(pInfo->dev, SYNAPTICS_PROP_LED_STATUS, 8, 1, &para->led_status);
++
+     /* only init product_id property if we actually know them */
+     if (priv->id_vendor || priv->id_product)
+     {
+@@ -684,6 +689,16 @@
+         para->area_right_edge  = area[1];
+         para->area_top_edge    = area[2];
+         para->area_bottom_edge = area[3];
++    } else if (property == prop_led_status)
++    {
++        if (prop->size != 1 || prop->format != 8 || prop->type != XA_INTEGER)
++            return BadMatch;
++
++        if (para->has_led) {
++            para->led_status = *(BOOL*)prop->data;
++            if (priv->proto_ops && priv->proto_ops->UpdateLED)
++                priv->proto_ops->UpdateLED(pInfo);
++        }
+     } else if (property == prop_noise_cancellation) {
+         INT32 *hyst;
+         if (prop->size != 2 || prop->format != 32 || prop->type != XA_INTEGER)
+--- a/src/synapticsstr.h
++++ b/src/synapticsstr.h
+@@ -165,6 +165,8 @@
+     unsigned int resolution_vert;           /* vertical resolution of touchpad in units/mm */
+     int area_left_edge, area_right_edge, area_top_edge, area_bottom_edge; /* area coordinates absolute */
+     int hyst_x, hyst_y;                     /* x and y width of hysteresis box */
++    Bool has_led;                           /* has an embedded LED */
++    Bool led_status;                        /* Current status of LED (1=on) */
+ } SynapticsParameters;
+ 
+ 
+--- a/src/synproto.h
++++ b/src/synproto.h
+@@ -77,6 +77,7 @@
+ 			struct CommData *comm, struct SynapticsHwState *hwRet);
+     Bool (*AutoDevProbe)(InputInfoPtr pInfo, const char *device);
+     void (*ReadDevDimensions)(InputInfoPtr pInfo);
++    void (*UpdateLED)(InputInfoPtr pInfo);
+ };
+ 
+ #ifdef BUILD_PS2COMM
+--- a/tools/synclient.c
++++ b/tools/synclient.c
+@@ -142,6 +142,7 @@
+     {"AreaRightEdge",         PT_INT,    0, 10000, SYNAPTICS_PROP_AREA,	32,	1},
+     {"AreaTopEdge",           PT_INT,    0, 10000, SYNAPTICS_PROP_AREA,	32,	2},
+     {"AreaBottomEdge",        PT_INT,    0, 10000, SYNAPTICS_PROP_AREA,	32,	3},
++    {"LEDStatus",             PT_BOOL,   0, 1,     SYNAPTICS_PROP_LED_STATUS,	8,	0},
+     { NULL, 0, 0, 0, 0 }
+ };
+ 

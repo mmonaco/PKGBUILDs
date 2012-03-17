@@ -1,0 +1,53 @@
+From 9e4ddc5abac669931cae6ebea6842c514c5b7570 Mon Sep 17 00:00:00 2001
+From: Chase Douglas <chase.douglas@canonical.com>
+Date: Sat, 4 Feb 2012 14:21:51 -0800
+Subject: [PATCH 02/10] Check for clickpad property
+
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ src/eventcomm.c |    7 +++++++
+ src/synaptics.c |    2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/eventcomm.c b/src/eventcomm.c
+index 6147e41..60be6fe 100644
+--- a/src/eventcomm.c
++++ b/src/eventcomm.c
+@@ -713,6 +713,7 @@ static void
+ event_query_touch(InputInfoPtr pInfo)
+ {
+     SynapticsPrivate *priv = (SynapticsPrivate *)pInfo->private;
++    SynapticsParameters *para = &priv->synpara;
+     struct eventcomm_proto_data *proto_data = priv->proto_data;
+     struct mtdev *mtdev;
+     int i;
+@@ -730,6 +731,12 @@ event_query_touch(InputInfoPtr pInfo)
+         return;
+     }
+ 
++    if (rc >= 0 && BitIsOn(&prop, INPUT_PROP_BUTTONPAD))
++    {
++        xf86IDrvMsg(pInfo, X_INFO, "found clickpad property\n");
++        para->clickpad = TRUE;
++    }
++
+     mtdev = mtdev_new_open(pInfo->fd);
+     if (!mtdev)
+     {
+diff --git a/src/synaptics.c b/src/synaptics.c
+index 4f6b65f..e20d6a8 100644
+--- a/src/synaptics.c
++++ b/src/synaptics.c
+@@ -534,7 +534,7 @@ static void set_default_parameters(InputInfoPtr pInfo)
+     pars->tap_move = xf86SetIntOption(opts, "MaxTapMove", tapMove);
+     pars->tap_time_2 = xf86SetIntOption(opts, "MaxDoubleTapTime", 180);
+     pars->click_time = xf86SetIntOption(opts, "ClickTime", 100);
+-    pars->clickpad = xf86SetIntOption(opts, "ClickPad", FALSE);
++    pars->clickpad = xf86SetIntOption(opts, "ClickPad", pars->clickpad); /* Probed */
+     pars->fast_taps = xf86SetBoolOption(opts, "FastTaps", FALSE);
+     pars->emulate_mid_button_time = xf86SetIntOption(opts, "EmulateMidButtonTime", 75);
+     pars->emulate_twofinger_z = xf86SetIntOption(opts, "EmulateTwoFingerMinZ", emulateTwoFingerMinZ);
+-- 
+1.7.9.2
+
