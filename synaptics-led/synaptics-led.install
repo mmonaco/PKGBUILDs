@@ -1,0 +1,11 @@
+post_install() {
+	depmod $(< /lib/modules/extramodules-3.3-ARCH/version)
+}
+
+post_upgrade() {
+	post_install
+}
+
+post_remove() {
+	post_install
+}
