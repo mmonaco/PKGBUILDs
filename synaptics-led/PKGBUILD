@@ -1,7 +1,7 @@
 # Maintainer: Matthew Monaco <net 0x01b dgbaley27>
 
 _kver=3.3
-_kver_extra=-rc4
+_kver_extra=
 _gitroot=git://repo.or.cz/linux-2.6.git
 
 pkgname=synaptics-led
@@ -9,7 +9,7 @@ pkgver=$_kver${kver_extra/-/}
 pkgrel=1
 arch=(i686 x86_64)
 license=(GPL2)
-url="https://github.com/mmonaco/synaptics-led"
+url="https://github.com/mmonaco/PKGBUILDs"
 pkgdesc="Synaptics LED enabled psmouse kernel module"
 depends=("linux>=$_kver" "linux<3.4")
 makedepends=("git" "linux-headers>=$_kver" "linux-headers<3.4")
@@ -22,7 +22,7 @@ source=(
 )
 
 md5sums=(
-	49c9c808ea0c8360157934f4acd3c24c
+	81840d49d639e0beed294126fcbd0a98
 	e8fd75bd9611bd8d72dbd91c15a1e637
 )
 
