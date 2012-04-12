@@ -19,8 +19,10 @@ install=${pkgname}.install
 options=('!libtool')
 backup=('etc/xdg/openbox/menu.xml' 'etc/xdg/openbox/rc.xml')
 source=(
+        'openbox-3.5.0-moveresize_end-safety-check.patch'
         'which-2.20.patch')
 md5sums=(
+         'e09d77842aac9a0cd7eebe112df88383'
          '7ca3b5244bb092d46f5bcf1e2bdf4a18')
 
 __gitroot="git://git.openbox.org/dana/openbox.git"
@@ -46,6 +48,8 @@ build() {
   	patch -p1 -i "${srcdir}"/which-2.20.patch
   	sed -i 's|/usr/bin/env python|/usr/bin/env python2|' \
   		data/autostart/openbox-xdg-autostart
+
+	patch -p1 -i "$srcdir/openbox-3.5.0-moveresize_end-safety-check.patch"
   
 	./bootstrap
 	./configure --prefix=/usr \
