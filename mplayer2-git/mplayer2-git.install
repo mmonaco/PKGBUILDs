@@ -13,7 +13,9 @@ installed for efficient video output.
 
 __EOF__
 
-	update-desktop-database -q
+	if type update-desktop-database &> /dev/null; then
+		update-desktop-database -q
+	fi
 }
 
 post_upgrade()
@@ -23,5 +25,7 @@ post_upgrade()
 
 post_remove()
 {
-	update-desktop-database -q
+	if type update-desktop-database &> /dev/null; then
+		update-desktop-database -q
+	fi
 }

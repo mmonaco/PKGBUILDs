@@ -17,7 +17,7 @@ source=()
 md5sums=()
 arch=('x86_64' 'i686')
 backup=("etc/mplayer/codecs.conf" "etc/mplayer/input.conf")
-depends=("fribidi" "freetype2" "fontconfig" "desktop-file-utils")
+depends=("fribidi" "freetype2" "fontconfig")
 # The dependencies here are *required* to build by the default options. fribidi
 # is needed for libass. freetype2 and fontconfig are needed for mplayer itself
 # (yes, ./configure --help says they are autodetected, but it lies, they need to
