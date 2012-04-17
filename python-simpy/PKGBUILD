@@ -1,0 +1,24 @@
+# Maintainer:  Matthew Monaco <net 0x01b dgbaley27
+
+_PyPkg=SimPy
+_pypkg=simpy
+_python=python
+
+pkgname=$_python-$_pypkg
+pkgver=2.3
+pkgrel=1
+pkgdesc="An object-oriented, process-based discrete-event simulation language for Python"
+url="http://$_pypkg.sourceforge.net"
+license=('LGPL')
+arch=('any')
+depends=("$_python")
+source=("$_pypkg-$pkgver::http://downloads.sourceforge.net/project/$_pypkg/$_pypkg/$_PyPkg-$pkgver/$_PyPkg-$pkgver.tar.gz")
+md5sums=('3f73c48944d291d221da4fc9ac735efe')
+
+package() {
+
+	cd "$srcdir/$_PyPkg-$pkgver"
+	$_python setup.py install --root="$pkgdir"
+}
+
+# vim: set noet :
