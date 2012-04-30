@@ -1,0 +1,39 @@
+# Maintainer: Padfoot
+
+pkgname=lightdm-gtk-greeter
+pkgver=1.1.5
+pkgrel=1
+pkgdesc="GTK+ greeter for LightDM"
+arch=('i686' 'x86_64')
+license=('GPL3')
+url="https://launchpad.net/lightdm-gtk-greeter"
+source=(
+	"https://launchpad.net/$pkgname/trunk/$pkgver/+download/$pkgname-$pkgver.tar.gz"
+)
+md5sums=(
+	'e42cedadbebd5b45733b32db54b83a44'
+)
+depends=("gtk3" "libx11" "lightdm" "glib2" "gdk-pixbuf2" "cairo")
+makedepends=("gobject-introspection" "intltool")
+backup=('etc/lightdm/lightdm-gtk-greeter.conf')
+
+build()
+{
+	cd "$srcdir/$pkgname-$pkgver"
+
+	./configure \
+		--prefix=/usr \
+		--sbindir=/usr/bin \
+		--sysconfdir=/etc \
+		--localstatedir=/var
+
+	make
+}
+
+package()
+{
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}
+
+# vim: set noet :
