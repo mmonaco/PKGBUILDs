@@ -2,3 +2,6 @@ pkg/
 src/
 *.pkg.tar.*
 *.src.tar.*
+xdg-matlab
+xdg-msoffice
+xdg-jgr
