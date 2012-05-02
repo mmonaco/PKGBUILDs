@@ -1,6 +1,6 @@
 pkgname=mkinitcpio-encryptssh
 pkgver=0.9
-pkgrel=2
+pkgrel=3
 pkgdesc="provides SSH access in initrd to enter root luks passphrase "
 arch=(i686 x86_64)
 url="https://mw.vc/2009/08/08/luks-pass-over-ssh-archlinux/"
