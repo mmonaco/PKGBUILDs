@@ -8,7 +8,7 @@ _gitname="mplayer2-build"
 
 pkgname=mplayer2-git
 pkgver=GIT
-pkgrel=3
+pkgrel=4
 pkgdesc="An advanced general-purpose video player."
 url="http://www.mplayer2.org"
 license=('GPL3')
@@ -22,7 +22,7 @@ depends=("fribidi" "freetype2" "fontconfig")
 # is needed for libass. freetype2 and fontconfig are needed for mplayer itself
 # (yes, ./configure --help says they are autodetected, but it lies, they need to
 # be explicitly disabled)
-makedepends=("git" "yasm" "python2")
+makedepends=("git" "yasm" "python")
 optdepends=()
 conflicts=("mplayer" "mplayer2")
 provides=("mplayer" "mplayer2")
