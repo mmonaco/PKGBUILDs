@@ -8,7 +8,7 @@ _gitname="mplayer2-build"
 
 pkgname=mplayer2-git
 pkgver=GIT
-pkgrel=4
+pkgrel=5
 pkgdesc="An advanced general-purpose video player."
 url="http://www.mplayer2.org"
 license=('GPL3')
@@ -43,8 +43,6 @@ build()
 		git pull
 	fi
 	
-	find . -type f -exec sed -i 's|^#!/usr/bin/env python *$|#!/usr/bin/env python2|' {} +
-
 	echo -e "--prefix=/usr\n--confdir=/etc/mplayer\n--language=all" > mplayer_options
 
 	./init --shallow
