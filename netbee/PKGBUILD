@@ -1,0 +1,43 @@
+pkgname=netbee
+pkgver=12.06.01
+pkgrel=1
+pkgdesc="A library intended for several types of packet processing"
+url="www.nbee.org"
+license=(LGPL)
+arch=(i686 x86_64)
+depends=(libpcap xerces-c-2 pcre)
+makedepends=(cmake chrpath)
+source=("http://www.nbee.org/download/nbeesrc-12-06-01.zip")
+md5sums=("3c2b6de2c9d0451c801666ebf58cfe2a")
+
+build() {
+
+	cd "$srcdir/$pkgname/src"
+
+	sed -i '78s|void \*\*|void \*|' "nbprotodb/expressions.cpp"
+
+	cmake -DCMAKE_INSTALL_PREFIX=/usr .
+	make
+	
+	cd "../tools"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr .
+	make
+
+	# No install provided, so need to remove rpath manually
+	cd ..
+	chrpath -d bin/*.so
+}
+
+package() {
+	
+	cd "$srcdir/$pkgname"
+
+	install -d "$pkgdir/usr/include"
+	install include/*.h "$pkgdir/usr/include"
+
+	install -d "$pkgdir/usr/lib"
+	install bin/*.so "$pkgdir/usr/lib"
+
+}
+
+# vim: set noet ts=4 sw=4 :
