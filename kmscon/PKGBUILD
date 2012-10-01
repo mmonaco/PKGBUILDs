@@ -1,0 +1,63 @@
+__gitroot="git://github.com/dvdhrm/kmscon.git"
+__gitname="kmscon.git"
+__gitcommit="master"
+
+pkgname=kmscon
+pkgver=0
+pkgrel=0
+pkgdesc="Linux KMS/DRM based virtual console emulator"
+url="https://github.com/dvdhrm/kmscon"
+license=(custom:MIT)
+arch=(i686 x86_64)
+depends=(libgles libegl dbus-core systemd libxkbcommon-git pango)
+makedepends=(git)
+options=(!libtool)
+source=("kmscon@.service")
+sha256sums=("d0fc48667bff1cd7cb5ac7c80bd917acc0f59effcb3d5e5ba501d28569750e19")
+
+build() {
+
+	_git_setup
+	cd "$srcdir/$pkgname-$pkgver"
+
+	./autogen.sh --prefix=/usr --sysconfdir=/etc \
+		--enable-systemd \
+		--enable-udev \
+		--enable-dbus \
+		--enable-fbdev \
+		--enable-drm \
+		--enable-gles2 \
+		--enable-pango
+	make
+}
+
+package() {
+
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+	install -D "COPYING" "$pkgdir/usr/share/licenses/kmscon/custom:MIT"
+	install -D "$srcdir/kmscon@.service" "$pkgdir/usr/lib/systemd/system/kmscon@.service"
+}
+
+_git_setup() {
+
+	cd "$SRCDEST"
+	
+	if [[ ! -d "$__gitname" ]]; then
+		msg2 "Cloning git repository"
+		git clone --mirror "$__gitroot" "$__gitname"
+	else
+		msg2 "Updating git repository"
+		cd "$__gitname"
+		git fetch
+	fi
+
+	cd "$srcdir"
+	if [[ -d "$pkgname-$pkgver" ]]; then
+		msg2 "Removing previous build tree"
+		rm -fr "$pkgname-$pkgver"
+	fi
+
+	msg2 "Creating fresh build tree"
+	git clone --depth=1 -b "$__gitcommit" "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
+}
