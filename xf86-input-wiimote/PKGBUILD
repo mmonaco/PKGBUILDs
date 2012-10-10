@@ -1,0 +1,64 @@
+# Maintainer:  Matt Monaco <net 0x01b dgbaley27>
+
+__gitroot="git://github.com/dvdhrm/xf86-input-xwiimote.git"
+__gitname="xf86-input-xwiimote.git"
+__gitcommit="master"
+
+pkgname=xf86-input-wiimote
+pkgver=0.2+git
+pkgrel=1
+pkgdesc="X.org Wiimote input driver"
+url="https://github.com/dvdhrm/xf86-input-xwiimote"
+license=(custom)
+arch=('x86_64' 'i686')
+source=(
+)
+sha256sums=(
+)
+backup=(
+	"etc/X11/xorg.conf.d/60-xorg-xwiimote.conf"
+)
+depends=("xwiimote" "udev")
+makedepends=("xorg-server-devel" "git")
+options=("!libtool")
+
+build()
+{
+	_git_setup
+	cd "$srcdir/$pkgname-$pkgver"
+	
+	./autogen.sh --prefix=/usr
+	make
+}
+
+package()
+{
+	cd "$srcdir/$pkgname-$pkgver"
+
+	make DESTDIR="$pkgdir" install
+	install -D 60-xorg-xwiimote.conf "$pkgdir"/etc/X11/xorg.conf.d/60-xorg-xwiimote.conf
+	install -D COPYING "$pkgdir"/usr/share/licenses/"$pkgname"/COPYING
+}
+
+_git_setup() {
+
+	cd "$SRCDEST"
+	
+	if [[ ! -d "$__gitname" ]]; then
+		msg2 "Cloning git repository"
+		git clone --mirror "$__gitroot" "$__gitname"
+	else
+		msg2 "Updating git repository"
+		cd "$__gitname"
+		git fetch
+	fi
+
+	cd "$srcdir"
+	if [[ -d "$pkgname-$pkgver" ]]; then
+		msg2 "Removing previous build tree"
+		rm -fr "$pkgname-$pkgver"
+	fi
+
+	msg2 "Creating fresh build tree"
+	git clone --depth=1 -b "$__gitcommit" "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
+}
