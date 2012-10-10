@@ -1,0 +1,59 @@
+# Maintainer Matthew Monaco <net 0x01b dgbaley27>
+
+pkgname=cairo-dock-plugins
+pkgver=3.1.0
+pkgrel=1
+pkgdesc="Plugins for cairo-dock"
+url="http://glx-dock.org"
+license=("GPL")
+arch=('i686' 'x86_64')
+depends=(cairo-dock=$pkgver libxxf86vm vte alsa-lib gvfs upower libdbusmenu-gtk3 gnome-menus2)
+optdepends=(
+	'libzeitgeist: to enable the Recent-Events applet'
+	'webkit: to enable the Weblet applet'
+	'indicator: to enable the Indicator applet'
+	'ruby: to support applets written in Ruby'
+	'mono: to support applets written in Mono/.Net'
+	'libpulse: to enable the Impulse applet'
+	'fftw: to enable the Impulse applet'
+	'libetpan: to enable the Mail applet'
+	'ido: to enable the Indicator applet'
+	'indicator-me: to enable the Me-Messaging applet')
+makedepends=('cmake')
+source=(
+	"https://launchpad.net/cairo-dock-plug-ins/3.1/$pkgver/+download/$pkgname-$pkgver.tar.gz"
+	"applet-host-ias.patch"
+)
+md5sums=(
+	"31a3570ceb1e32f11dd62ef42627eb7d"
+	"28ae9bce2bced1a8270a94ec43993103"
+)
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+
+	patch -p1 -i "$srcdir"/applet-host-ias.patch
+
+	cmake . -DCMAKE_INSTALL_PREFIX=/usr \
+		-Denable-alsa-mixer=no \
+		-Denable-disks=no \
+		-Denable-doncky=no \
+		-Denable-global-menu=yes \
+		-Denable-gmenu=yes \
+		-Denable-gnome-integration=yes \
+		-Denable-old-gnome-integration=no \
+		-Denable-kde-integration2=no \
+		-Denable-kde-integration=no \
+		-Denable-memenu=no \
+		-Denable-network-monitor=no \
+		-Denable-scooby-do=no \
+		-Denable-weblets=no \
+		-Denable-xfce-integration=no
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}
+
