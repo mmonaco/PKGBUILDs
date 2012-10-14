@@ -14,7 +14,7 @@ md5sums=(
 	6768158ab73cd010eef6ba0185e63b82
 )
 depends=(cairo curl dbus-glib gdk-pixbuf2 glib2 glu gtk3 libgl librsvg libx11 libxcomposite
-         libxinerama libxml2 libxrandr libxrender libxtst pango)
+         libxinerama libxml2 libxrandr libxrender libxtst pangox-compat)
 makedepends=(cmake)
 
 build()
