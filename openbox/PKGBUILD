@@ -1,72 +1,70 @@
-# $Id: PKGBUILD 64899 2012-02-18 19:57:32Z bpiotrowski $
 # Maintainer:  Bartłomiej Piotrowski <nospam@bpiotrowski.pl>
-# Contributor: Brad Fanella <bradfanella@archlinux.us>
-# Contributor: Andrea Scarpino <andrea@archlinux.org>
-# Contributor: tobias <tobias@archlinux.org>
+
+__gitroot="git://github.com/danakj/openbox.git"
+__gitname="openbox.git"
+__gitcommit="master"
 
 pkgname=openbox
-pkgver=3.5.0
-pkgrel=6
+pkgver=3.5.0+git
+pkgrel=7
 pkgdesc="A window manager for the X11 windowing system"
 arch=('i686' 'x86_64')
 url="http://openbox.org"
 license=('GPL')
 depends=('startup-notification' 'libxml2' 'libxinerama' 'libxrandr'
-         'libxcursor' 'pango' 'imlib2')
+         'libxcursor' 'pango' 'imlib2' 'libsm')
 optdepends=('pyxdg: for the xdg-autostart script')
 groups=('lxde')
-install=${pkgname}.install
 options=('!libtool')
-backup=('etc/xdg/openbox/menu.xml' 'etc/xdg/openbox/rc.xml')
 source=(
-        'openbox-3.5.0-moveresize_end-safety-check.patch'
-        'which-2.20.patch')
+)
 md5sums=(
-         'e09d77842aac9a0cd7eebe112df88383'
-         '7ca3b5244bb092d46f5bcf1e2bdf4a18')
-
-__gitroot="git://git.openbox.org/dana/openbox.git"
+)
+backup=(
+	'etc/xdg/openbox/menu.xml'
+	'etc/xdg/openbox/rc.xml'
+)
 
 build() {
-	cd "$srcdir"
 
-	if [[ -d "$pkgname" ]]; then
-		msg2 "Pulling from $__gitroot"
-		pushd "$pkgname"
-		git pull
-		popd
-	else
-		msg2 "Cloning $__gitroot"
-		git clone "$__gitroot"
-	fi
+	_git_setup
+	cd "$srcdir/$pkgname-$pkgver"
 
-	git clone "$pkgname" "$pkgname-$pkgver"
-
-  	cd "${srcdir}"/${pkgname}-${pkgver}
-
-  	# FS#11455
-  	patch -p1 -i "${srcdir}"/which-2.20.patch
-  	sed -i 's|/usr/bin/env python|/usr/bin/env python2|' \
-  		data/autostart/openbox-xdg-autostart
-
-	patch -p1 -i "$srcdir/openbox-3.5.0-moveresize_end-safety-check.patch"
-  
 	./bootstrap
 	./configure --prefix=/usr \
-    		--with-x \
-    		--enable-startup-notification \
-    		--sysconfdir=/etc \
-		    --libexecdir=/usr/lib/openbox
-  
+		--with-x \
+		--enable-startup-notification \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib/openbox
+
 	make
 }
 
 package() {
-  	cd "${srcdir}"/${pkgname}-${pkgver}
-  	make DESTDIR="${pkgdir}" install
 
-  	#sed -i "s:startkde:/usr/bin/\0:" \
-  	#	"${pkgdir}"/usr/share/xsessions/openbox-kde.desktop
-  	#sed -i "s:=gnome-session:=/usr/bin/gnome-session:" \
-    	#	"${pkgdir}"/usr/share/xsessions/openbox-gnome.desktop
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}
+
+_git_setup() {
+
+	cd "$SRCDEST"
+
+	if [[ ! -d "$__gitname" ]]; then
+		msg2 "Cloning git repository"
+		git clone --mirror "$__gitroot" "$__gitname"
+	else
+		msg2 "Updating git repository"
+		cd "$__gitname"
+		git fetch
+	fi
+
+	cd "$srcdir"
+	if [[ -d "$pkgname-$pkgver" ]]; then
+		msg2 "Removing previous build tree"
+		rm -fr "$pkgname-$pkgver"
+	fi
+
+	msg2 "Creating fresh build tree"
+	git clone --depth=1 -b "$__gitcommit" "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
 }
