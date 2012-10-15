@@ -1,0 +1,60 @@
+# Maintainer: Matt Monaco <net 0x01b matt>
+
+__gitroot="git://github.com/mattn/gist-vim.git"
+__gitname="gist-vim.git"
+__gitcommit="b41d650e38828c908e5c86d32745c5068e694a03"
+
+pkgname=vim-gist
+pkgver=7.0
+pkgrel=1
+pkgdesc="vimscript for gist"
+arch=('any')
+url="http://www.vim.org/scripts/script.php?script_id=2423"
+license=('custom')
+depends=(vim curl vim-webapi)
+optdepends=("git: git profile support")
+install=vimdoc.install
+source=(vimdoc.install)
+md5sums=('b3af10f21ff3beca7f405da1177727a2')
+
+build() {
+	_git_setup
+}
+
+package() {
+
+	cd "$srcdir/$pkgname-$pkgver"
+	
+	local vimdir="$pkgdir/usr/share/vim/vimfiles"
+	
+	for f in autoload/* doc/* plugin/*; do
+		install -D "$f" "$vimdir/$f"
+	done
+
+	install -D "README.mkd" "$pkgdir/usr/share/licenses/$pkgname/README.mkd"
+}
+
+_git_setup() {
+
+	cd "$SRCDEST"
+
+	if [[ ! -d "$__gitname" ]]; then
+		msg2 "Cloning git repository"
+		git clone --mirror "$__gitroot" "$__gitname"
+	else
+		msg2 "Updating git repository"
+		cd "$__gitname"
+		git fetch
+	fi
+
+	cd "$srcdir"
+	if [[ -d "$pkgname-$pkgver" ]]; then
+		msg2 "Removing previous build tree"
+		rm -fr "$pkgname-$pkgver"
+	fi
+
+	msg2 "Creating fresh build tree"
+	git clone --depth=1 "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
+	cd "$pkgname-$pkgver"
+	git checkout "$__gitcommit"
+}
