@@ -13,9 +13,9 @@ url="http://www.vim.org/scripts/script.php?script_id=2423"
 license=('custom')
 depends=(vim curl vim-webapi)
 optdepends=("git: git profile support")
-install=vimdoc.install
-source=(vimdoc.install)
-md5sums=('b3af10f21ff3beca7f405da1177727a2')
+source=(vim-helptags.install)
+md5sums=('1ebde9fabb62b4e2a52feda480f1adf4')
+install=vim-helptags.install
 
 build() {
 	_git_setup
