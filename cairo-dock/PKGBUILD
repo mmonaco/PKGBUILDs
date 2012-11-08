@@ -1,7 +1,7 @@
 # Maintainer:  Matt Monaco <net 0x01b dgbaley27>
 
 pkgname=cairo-dock
-pkgver=3.1.0
+pkgver=3.1.1
 pkgrel=1
 pkgdesc="A Cairo/OpenGL based dock/panel/launcher"
 url="http://www.glx-dock.org"
@@ -11,7 +11,7 @@ source=(
 	"https://launchpad.net/$pkgname-core/3.1/$pkgver/+download/$pkgname-$pkgver.tar.gz"
 )
 md5sums=(
-	6768158ab73cd010eef6ba0185e63b82
+	a7e48f7ad927492bcff18eb7001827f5
 )
 depends=(cairo curl dbus-glib gdk-pixbuf2 glib2 glu gtk3 libgl librsvg libx11 libxcomposite
          libxinerama libxml2 libxrandr libxrender libxtst pangox-compat)
