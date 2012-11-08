@@ -1,13 +1,13 @@
 # Maintainer Matthew Monaco <net 0x01b dgbaley27>
 
 pkgname=cairo-dock-plugins
-pkgver=3.1.0
+pkgver=3.1.1.1
 pkgrel=1
 pkgdesc="Plugins for cairo-dock"
 url="http://glx-dock.org"
 license=("GPL")
 arch=('i686' 'x86_64')
-depends=(cairo-dock=$pkgver libxxf86vm vte alsa-lib gvfs upower libdbusmenu-gtk3 gnome-menus2)
+depends=(cairo-dock=${pkgver%.1} libxxf86vm vte alsa-lib gvfs upower libdbusmenu-gtk3 gnome-menus2 libical)
 optdepends=(
 	'libzeitgeist: to enable the Recent-Events applet'
 	'webkit: to enable the Weblet applet'
@@ -21,16 +21,16 @@ optdepends=(
 	'indicator-me: to enable the Me-Messaging applet')
 makedepends=('cmake')
 source=(
-	"https://launchpad.net/cairo-dock-plug-ins/3.1/$pkgver/+download/$pkgname-$pkgver.tar.gz"
+	"https://launchpad.net/cairo-dock-plug-ins/3.1/${pkgver%.1}/+download/$pkgname-$pkgver.tar.gz"
 	"applet-host-ias.patch"
 )
 md5sums=(
-	"31a3570ceb1e32f11dd62ef42627eb7d"
+	"e2605bdf3844e715dc5f02670a4abfd2"
 	"28ae9bce2bced1a8270a94ec43993103"
 )
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
+	cd "$srcdir/$pkgname-${pkgver%.1}"
 
 	patch -p1 -i "$srcdir"/applet-host-ias.patch
 
@@ -53,7 +53,7 @@ build() {
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
+	cd "$srcdir/$pkgname-${pkgver%.1}"
 	make DESTDIR="$pkgdir" install
 }
 
