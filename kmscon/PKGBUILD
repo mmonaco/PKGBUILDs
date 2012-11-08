@@ -3,17 +3,15 @@ __gitname="kmscon.git"
 __gitcommit="master"
 
 pkgname=kmscon
-pkgver=0
-pkgrel=0
+pkgver=5+git
+pkgrel=1
 pkgdesc="Linux KMS/DRM based virtual console emulator"
 url="https://github.com/dvdhrm/kmscon"
 license=(custom:MIT)
 arch=(i686 x86_64)
-depends=(libgles libegl dbus-core systemd libxkbcommon-git pango)
+depends=(libgles libegl dbus-core systemd libxkbcommon pango)
 makedepends=(git)
 options=(!libtool)
-source=("kmscon@.service")
-sha256sums=("d0fc48667bff1cd7cb5ac7c80bd917acc0f59effcb3d5e5ba501d28569750e19")
 
 build() {
 
@@ -21,12 +19,15 @@ build() {
 	cd "$srcdir/$pkgname-$pkgver"
 
 	./autogen.sh --prefix=/usr --sysconfdir=/etc \
+		--disable-wlterm \
 		--enable-systemd \
 		--enable-udev \
-		--enable-dbus \
-		--enable-fbdev \
-		--enable-drm \
+		--enable-hotplug \
+		--disable-fbdev \
+		--disable-drm \
 		--enable-gles2 \
+		--disable-f8x16 \
+		--disable-freetype2 \
 		--enable-pango
 	make
 }
@@ -35,15 +36,16 @@ package() {
 
 	cd "$srcdir/$pkgname-$pkgver"
 	make DESTDIR="$pkgdir" install
+	install -D "docs/kmscon@.service" "$pkgdir/usr/lib/systemd/system/kmscon@.service"
+	install -D "docs/kmscon.service"  "$pkgdir/usr/lib/systemd/system/kmscon.service"
 	install -D "COPYING" "$pkgdir/usr/share/licenses/kmscon/custom:MIT"
-	install -D "$srcdir/kmscon@.service" "$pkgdir/usr/lib/systemd/system/kmscon@.service"
 }
 
 _git_setup() {
 
 	cd "$SRCDEST"
 	
-	if [[ ! -d "$__gitname" ]]; then
+	if [[ ! -d $__gitname ]]; then
 		msg2 "Cloning git repository"
 		git clone --mirror "$__gitroot" "$__gitname"
 	else
@@ -53,7 +55,7 @@ _git_setup() {
 	fi
 
 	cd "$srcdir"
-	if [[ -d "$pkgname-$pkgver" ]]; then
+	if [[ -d $pkgname-$pkgver ]]; then
 		msg2 "Removing previous build tree"
 		rm -fr "$pkgname-$pkgver"
 	fi
