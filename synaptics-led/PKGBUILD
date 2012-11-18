@@ -1,5 +1,10 @@
 # Maintainer: Matthew Monaco <net 0x01b dgbaley27>
 
+# http://kernel.opensuse.org/cgit/kernel-source/
+# http://kernel.opensuse.org/cgit/kernel-source/commit/patches.drivers?id=940e57e2c66093f6fee481ab4224dd4294e3793f
+# https://bugzilla.novell.com/768506
+# https://bugzilla.novell.com/765524
+
 _kver=3.6
 _gitroot=git://repo.or.cz/linux.git
 _gitcommit=linux-$_kver.y
@@ -7,25 +12,25 @@ _cur_kernel="$(uname -r)"
 
 pkgname=synaptics-led
 pkgver=$_kver
-pkgrel=3
+pkgrel=4
 arch=(i686 x86_64)
 license=(GPL2)
 url="https://github.com/mmonaco/PKGBUILDs"
 pkgdesc="Synaptics LED enabled psmouse kernel module"
-depends=("linux")
-makedepends=("git" "linux-headers")
-install=$pkgname.install
+depends=(linux)
+makedepends=(git linux-headers)
+install="$pkgname.install"
 
 source=(
-	"SHA256SUMS"
-	"synled.patch"
+	SHA256SUMS
+	synled.patch
 	"$pkgname.install"
 )
 
 sha256sums=(
-	"f67d599a1cc96e1e2e01e805a87ee49361f646251e8f409886e227a9a102fc7e"
-	"f3bf548854d5aa7b2b35eee7cf5e565f909331efee204d22410d4666f2303047"
-	"b46af61822e8ec8639faa1b60dd3b6b1a64e24854611902499b9f81d2691e22c"
+	f67d599a1cc96e1e2e01e805a87ee49361f646251e8f409886e227a9a102fc7e
+	e236dba9da97aa9ef62ba2d8de4869d402ec0bc510da5c1136f65cd7e744621a
+	b46af61822e8ec8639faa1b60dd3b6b1a64e24854611902499b9f81d2691e22c
 )
 
 build() {

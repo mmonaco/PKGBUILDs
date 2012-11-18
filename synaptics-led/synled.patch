@@ -1,5 +1,5 @@
-From 1ea3d01fefe090233e936f537347a038c60f173e Mon Sep 17 00:00:00 2001
-Message-Id: <1ea3d01fefe090233e936f537347a038c60f173e.1347826808.git.matthew.monaco@0x01b.net>
+From 8e43d3ca6d922cb4f81a998b11097c7c317f8dad Mon Sep 17 00:00:00 2001
+Message-Id: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353231538.git.matthew.monaco@0x01b.net>
 From: Takashi Iwai <tiwai@suse.de>
 Date: Sun, 16 Sep 2012 14:19:41 -0600
 Subject: [PATCH] input: Add LED support to Synaptics device
@@ -18,41 +18,35 @@ in the ext capability bits and assumes that LED exists on the known
 devices.
 
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
+References: bnc#547370,bnc#582529,bnc#589014
 ---
- drivers/input/mouse/Kconfig     |   9 ++++
- drivers/input/mouse/synaptics.c | 111 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |   3 ++
- 3 files changed, 123 insertions(+)
+ drivers/input/mouse/Kconfig     |   9 +++
+ drivers/input/mouse/synaptics.c | 124 ++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/synaptics.h |   3 +
+ 3 files changed, 136 insertions(+)
 
 diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index cd6268c..4d68716 100644
+index cd6268c..483dd14 100644
 --- a/drivers/input/mouse/Kconfig
 +++ b/drivers/input/mouse/Kconfig
-@@ -19,6 +19,7 @@ config MOUSE_PS2
- 	select SERIO_LIBPS2
- 	select SERIO_I8042 if X86
- 	select SERIO_GSCPS2 if GSC
-+	select LEDS_CLASS # if MOUSE_PS2_SYNAPTICS_LED
- 	help
- 	  Say Y here if you have a PS/2 mouse connected to your system. This
- 	  includes the standard 2 or 3-button PS/2 mouse, as well as PS/2
-@@ -68,6 +69,14 @@ config MOUSE_PS2_SYNAPTICS
+@@ -68,6 +68,15 @@ config MOUSE_PS2_SYNAPTICS
  
  	  If unsure, say Y.
  
-+#config MOUSE_PS2_SYNAPTICS_LED
-+#	bool "Support embedded LED on Synaptics devices"
-+#	depends on MOUSE_PS2_SYNAPTICS
-+#	select NEW_LEDS
-+#	help
-+#	  Say Y here if you have a Synaptics device with an embedded LED.
-+#	  This will enable LED class driver to control the LED device.
-+#
++config MOUSE_PS2_SYNAPTICS_LED
++	bool "Support embedded LED on Synaptics devices"
++	default y
++	depends on MOUSE_PS2_SYNAPTICS
++	depends on LEDS_CLASS=y || LEDS_CLASS=MOUSE_PS2
++	help
++	  Say Y here if you have a Synaptics device with an embedded LED.
++	  This will enable LED class driver to control the LED device.
++
  config MOUSE_PS2_LIFEBOOK
  	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
  	default y
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 14eaece..8b05030 100644
+index 12d12ca..077e315 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
 @@ -29,6 +29,7 @@
@@ -63,11 +57,11 @@ index 14eaece..8b05030 100644
  #include <linux/slab.h>
  #include "psmouse.h"
  #include "synaptics.h"
-@@ -480,6 +481,110 @@ static void synaptics_pt_create(struct psmouse *psmouse)
+@@ -485,6 +486,123 @@ static void synaptics_pt_create(struct psmouse *psmouse)
  	serio_register_port(serio);
  }
  
-+/*#ifdef CONFIG_MOUSE_PS2_SYNAPTICS_LED*/
++#ifdef CONFIG_MOUSE_PS2_SYNAPTICS_LED
 +/*
 + * LED handling:
 + * Some Synaptics devices have an embeded LED at the top-left corner.
@@ -123,19 +117,32 @@ index 14eaece..8b05030 100644
 +		synaptics_set_led(psmouse, priv->led->cdev.brightness);
 +}
 +
++static bool synaptics_has_led(struct synaptics_data *priv)
++{
++	if (!priv->ext_cap_0c)
++		return false;
++	/* FIXME: LED is supposedly detectable in cap0c[1] 0x20, but it seems
++	 * not working on real machines.
++	 * So we check the product id to be sure.
++	 */
++	if (SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0xe4 &&
++	    SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0x64 &&
++	    SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0x84)
++		return false;
++	if (!(priv->ext_cap_0c & 0x2000) &&
++	    (priv->capabilities & 0xd000ff) != 0xd00073)
++		return false;
++	return true;
++}
++
 +static int synaptics_init_led(struct psmouse *psmouse)
 +{
 +	struct synaptics_data *priv = psmouse->private;
 +	struct synaptics_led *led;
 +	int err;
 +
-+	/* FIXME: LED is supposedly detectable in cap0c[1] 0x20, but it seems
-+	 * not working on real machines.
-+	 * So we check the product id to be sure.
-+	 */
-+	if (!priv->ext_cap_0c || SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0xe4)
++	if (!synaptics_has_led(priv))
 +		return 0;
-+
 +	printk(KERN_INFO "synaptics: support LED control\n");
 +	led = kzalloc(sizeof(struct synaptics_led), GFP_KERNEL);
 +	if (!led)
@@ -165,16 +172,16 @@ index 14eaece..8b05030 100644
 +	led_classdev_unregister(&priv->led->cdev);
 +	kfree(priv->led);
 +}
-+/*#else
++#else
 +#define synaptics_init_led(ps)	0
 +#define synaptics_free_led(ps)	do {} while (0)
 +#define synaptics_sync_led(ps)	do {} while (0)
-+#endif*/
++#endif
 +
  /*****************************************************************************
   *	Functions to interpret the absolute mode packets
   ****************************************************************************/
-@@ -1331,6 +1436,7 @@ static void synaptics_disconnect(struct psmouse *psmouse)
+@@ -1346,6 +1464,7 @@ static void synaptics_disconnect(struct psmouse *psmouse)
  		device_remove_file(&psmouse->ps2dev.serio->dev,
  				   &psmouse_attr_disable_gesture.dattr);
  
@@ -182,7 +189,7 @@ index 14eaece..8b05030 100644
  	synaptics_reset(psmouse);
  	kfree(priv);
  	psmouse->private = NULL;
-@@ -1387,6 +1493,8 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+@@ -1402,6 +1521,8 @@ static int synaptics_reconnect(struct psmouse *psmouse)
  		return -1;
  	}
  
@@ -191,7 +198,7 @@ index 14eaece..8b05030 100644
  	return 0;
  }
  
-@@ -1497,6 +1605,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+@@ -1512,6 +1633,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
  		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c,
  		     priv->board_id, priv->firmware_id);
  
@@ -223,5 +230,5 @@ index e594af0..c747925 100644
  
  void synaptics_module_init(void);
 -- 
-1.7.12
+1.8.0
 
