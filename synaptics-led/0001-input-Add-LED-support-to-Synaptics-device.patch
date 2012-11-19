@@ -1,5 +1,5 @@
-From 8e43d3ca6d922cb4f81a998b11097c7c317f8dad Mon Sep 17 00:00:00 2001
-Message-Id: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353349496.git.matthew.monaco@0x01b.net>
+From 8f66abaef00393307f1ba61afe0d3461e663e2d0 Mon Sep 17 00:00:00 2001
+Message-Id: <8f66abaef00393307f1ba61afe0d3461e663e2d0.1353361902.git.matthew.monaco@0x01b.net>
 From: Takashi Iwai <tiwai@suse.de>
 Date: Sun, 16 Sep 2012 14:19:41 -0600
 Subject: [PATCH 1/2] input: Add LED support to Synaptics device
@@ -20,22 +20,21 @@ devices.
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 References: bnc#547370,bnc#582529,bnc#589014
 ---
- drivers/input/mouse/Kconfig     |   9 +++
+ drivers/input/mouse/Kconfig     |   8 +++
  drivers/input/mouse/synaptics.c | 124 ++++++++++++++++++++++++++++++++++++++++
  drivers/input/mouse/synaptics.h |   3 +
- 3 files changed, 136 insertions(+)
+ 3 files changed, 135 insertions(+)
 
 diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index cd6268c..483dd14 100644
+index cd6268c..439bf71 100644
 --- a/drivers/input/mouse/Kconfig
 +++ b/drivers/input/mouse/Kconfig
-@@ -68,6 +68,15 @@ config MOUSE_PS2_SYNAPTICS
+@@ -68,6 +68,14 @@ config MOUSE_PS2_SYNAPTICS
  
  	  If unsure, say Y.
  
 +config MOUSE_PS2_SYNAPTICS_LED
 +	bool "Support embedded LED on Synaptics devices"
-+	default y
 +	depends on MOUSE_PS2_SYNAPTICS
 +	depends on LEDS_CLASS=y || LEDS_CLASS=MOUSE_PS2
 +	help
