@@ -1,8 +1,8 @@
 From 8e43d3ca6d922cb4f81a998b11097c7c317f8dad Mon Sep 17 00:00:00 2001
-Message-Id: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353231538.git.matthew.monaco@0x01b.net>
+Message-Id: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353349496.git.matthew.monaco@0x01b.net>
 From: Takashi Iwai <tiwai@suse.de>
 Date: Sun, 16 Sep 2012 14:19:41 -0600
-Subject: [PATCH] input: Add LED support to Synaptics device
+Subject: [PATCH 1/2] input: Add LED support to Synaptics device
 
 The new Synaptics devices have an LED on the top-left corner.
 This patch adds a new LED class device to control it.  It's created

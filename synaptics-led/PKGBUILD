@@ -12,7 +12,7 @@ _cur_kernel="$(uname -r)"
 
 pkgname=synaptics-led
 pkgver=$_kver
-pkgrel=4
+pkgrel=5
 arch=(i686 x86_64)
 license=(GPL2)
 url="https://github.com/mmonaco/PKGBUILDs"
@@ -23,14 +23,16 @@ install="$pkgname.install"
 
 source=(
 	SHA256SUMS
-	synled.patch
 	"$pkgname.install"
+	0001-input-Add-LED-support-to-Synaptics-device.patch
+	0002-synaptics-add-debugging-to-synaptics_has_led.patch
 )
 
 sha256sums=(
 	f67d599a1cc96e1e2e01e805a87ee49361f646251e8f409886e227a9a102fc7e
-	e236dba9da97aa9ef62ba2d8de4869d402ec0bc510da5c1136f65cd7e744621a
 	b46af61822e8ec8639faa1b60dd3b6b1a64e24854611902499b9f81d2691e22c
+	7cd508cb263f3356a9f97bf7f78992b92a3a6ffbc130029287ea6c9801ddf86d
+	f06401664b88e78a2cf0f2fa0fcbf7daa920704e5c82e613f1e5bc4c704ff423
 )
 
 build() {
@@ -46,7 +48,8 @@ build() {
 	sha256sum --quiet -c "$srcdir/SHA256SUMS"
 
 	msg2 "Patching source"
-	patch -p4 -i "$srcdir/synled.patch"
+	patch -p4 -i "$srcdir/0001-input-Add-LED-support-to-Synaptics-device.patch"
+	patch -p4 -i "$srcdir/0002-synaptics-add-debugging-to-synaptics_has_led.patch"
 
 	msg2 "Building psmouse.ko"
 	make -C "/lib/modules/$_cur_kernel/build" M="$PWD" psmouse.ko

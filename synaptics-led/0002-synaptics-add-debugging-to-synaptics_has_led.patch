@@ -1,0 +1,58 @@
+From d5396b252f222e89b38e87f12b24b27f6fae8d3b Mon Sep 17 00:00:00 2001
+Message-Id: <d5396b252f222e89b38e87f12b24b27f6fae8d3b.1353349496.git.matthew.monaco@0x01b.net>
+In-Reply-To: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353349496.git.matthew.monaco@0x01b.net>
+References: <8e43d3ca6d922cb4f81a998b11097c7c317f8dad.1353349496.git.matthew.monaco@0x01b.net>
+From: Matthew Monaco <matthew.monaco@0x01b.net>
+Date: Mon, 19 Nov 2012 11:24:13 -0700
+Subject: [PATCH 2/2] synaptics: add debugging to synaptics_has_led()
+
+---
+ drivers/input/mouse/synaptics.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 077e315..c76e8fd 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -544,19 +544,35 @@ static void synaptics_sync_led(struct psmouse *psmouse)
+ 
+ static bool synaptics_has_led(struct synaptics_data *priv)
+ {
+-	if (!priv->ext_cap_0c)
++	printk(KERN_NOTICE, "synaptics: led: checking for led\n");
++
++	if (!priv->ext_cap_0c) {
++		printk(KERN_NOTICE, "synaptics: led: !priv->ext_cap_0c is true... no led\n");
+ 		return false;
++	}
++	
++	printk(KERN_NOTICE, "synaptics: led: your product ID is %2x\n", SYN_CAP_PRODUCT_ID(priv->ext_cap));
++	
+ 	/* FIXME: LED is supposedly detectable in cap0c[1] 0x20, but it seems
+ 	 * not working on real machines.
+ 	 * So we check the product id to be sure.
+ 	 */
++	
+ 	if (SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0xe4 &&
+ 	    SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0x64 &&
+-	    SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0x84)
++	    SYN_CAP_PRODUCT_ID(priv->ext_cap) != 0x84) {
++		printk(KERN_NOTICE, "synaptics: led: your product ID is not in the whitelist\n");
+ 		return false;
++	}
++	
+ 	if (!(priv->ext_cap_0c & 0x2000) &&
+-	    (priv->capabilities & 0xd000ff) != 0xd00073)
++	    (priv->capabilities & 0xd000ff) != 0xd00073) {
++		printk(KERN_NOTICE, "synaptics: led: failed capabilities check\n");
+ 		return false;
++	}
++	
++	printk(KERN_NOTICE, "synaptics: led: looks like you have one\n");
++	
+ 	return true;
+ }
+ 
+-- 
+1.8.0
+
