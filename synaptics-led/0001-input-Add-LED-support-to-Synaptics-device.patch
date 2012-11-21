@@ -1,5 +1,5 @@
 From 8f66abaef00393307f1ba61afe0d3461e663e2d0 Mon Sep 17 00:00:00 2001
-Message-Id: <8f66abaef00393307f1ba61afe0d3461e663e2d0.1353361902.git.matthew.monaco@0x01b.net>
+Message-Id: <8f66abaef00393307f1ba61afe0d3461e663e2d0.1353522208.git.matthew.monaco@0x01b.net>
 From: Takashi Iwai <tiwai@suse.de>
 Date: Sun, 16 Sep 2012 14:19:41 -0600
 Subject: [PATCH 1/2] input: Add LED support to Synaptics device
