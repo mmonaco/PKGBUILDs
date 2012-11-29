@@ -5,8 +5,8 @@ __gitname="ofdissector.git"
 __gitcommit="master"
 
 pkgname=wireshark-plugin-openflow
-pkgver=0
-pkgrel=0
+pkgver=0.3+git
+pkgrel=1
 pkgdesc="The OpenFlow dissector for Wireshark."
 url="http://www.openflow.org"
 license=(custom)
