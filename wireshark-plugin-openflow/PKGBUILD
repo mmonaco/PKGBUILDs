@@ -4,7 +4,7 @@ __gitroot="git://github.com/CPqD/ofdissector.git"
 __gitname="ofdissector.git"
 __gitcommit="master"
 
-_wireshark_version=1.8.3
+_wireshark_version=1.8.4
 
 pkgname=wireshark-plugin-openflow
 pkgver=0.3+git
