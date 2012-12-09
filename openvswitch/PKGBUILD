@@ -1,0 +1,93 @@
+# Maintainer:  Matt Monaco <net 0x01b dgbaley27>
+
+__gitroot="git://openvswitch.org/openvswitch"
+__gitname="openvswitch.git"
+__gitcommit="v1.7.1"
+
+pkgname=openvswitch
+pkgver=1.7.1
+pkgrel=1
+pkgdesc="Production Quality, Multilayer Open Virtual Switch"
+url="http://openvswitch.org"
+license=(APACHE)
+arch=(x86_64 i686)
+install=openvswitch.install
+source=(
+	openvswitch.install
+	openvswitch.tmpfiles
+	ovsdb-server.service
+	ovs-vswitchd.service
+	openvswitch.netcfg-connection
+	openvswitch.netcfg-example
+	netcfg-openvswitch@.service
+)
+sha256sums=(
+	9d30ed859214f4cdeb6b6450d5c5defaf31f2c593c05201109df66fa9373ef0c
+	e8dc21e50fc886bfd6aa55991bdb3cb66907e11b071045452bb12de01a3ecbd9
+	5900728bca0292ec66e6da234eaa6f32f28ead6bda163d89a480eac08558c657
+	c2cb5e2685240ea50b1aba4e77784f4dd66d157e7cd05a17853868aa8d8a2a45
+	edaaa3670d04cc603dedd99142466bebd4f92745cd0d0d1fcbaca412f56c660e
+	7028afb178c300ad478e023a6907bfe833854d552840cd01253a8142b533d36f
+	2c7a0695e1e77d94e0572be9e1d8054973511a2a86cbdb6c2c75b4b2163a6f64
+)
+backup=(
+)
+depends=(openssl)
+makedepends=(git python2)
+optdepends=(
+	"netcfg: for openvswitch profiles"
+)
+
+build()
+{
+	_git_setup
+	cd "$srcdir/$pkgname-$pkgver"
+
+	./boot.sh
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-rundir=/run/openvswitch \
+		PYTHON=/usr/bin/python2
+	make
+}
+
+package()
+{
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+
+	cd "$srcdir"
+	install -D openvswitch.tmpfiles "$pkgdir/usr/lib/tmpfiles.d/openvswitch.conf"
+	install -D ovsdb-server.service "$pkgdir/usr/lib/systemd/system/ovsdb-server.service"
+	install -D ovs-vswitchd.service "$pkgdir/usr/lib/systemd/system/ovs-vswitchd.service"
+	install -D openvswitch.netcfg-connection "$pkgdir/usr/lib/network/connections/openvswitch"
+	install -D openvswitch.netcfg-example "$pkgdir/etc/network.d/examples/openvswitch"
+	install -D netcfg-openvswitch@.service "$pkgdir/usr/lib/systemd/system/netcfg-openvswitch@.service"
+	install -d "$pkgdir/etc/openvswitch"
+	install -m 0770 -d "$pkgdir/run/openvswitch"
+}
+
+_git_setup() {
+
+	cd "$SRCDEST"
+	
+	if [[ ! -d "$__gitname" ]]; then
+		msg2 "Cloning git repository"
+		git clone --mirror "$__gitroot" "$__gitname"
+	else
+		msg2 "Updating git repository"
+		cd "$__gitname"
+		git fetch
+	fi
+
+	cd "$srcdir"
+	if [[ -d "$pkgname-$pkgver" ]]; then
+		msg2 "Removing previous build tree"
+		rm -fr "$pkgname-$pkgver"
+	fi
+
+	msg2 "Creating fresh build tree"
+	git clone --depth=1 -b "$__gitcommit" "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
+}
