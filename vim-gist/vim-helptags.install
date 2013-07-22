@@ -1,18 +1,13 @@
 post_install() {
-  	echo 0 i
-	vim -e -s -c 'helptags /usr/share/vim/vimfiles/doc/' -c quit
-  	echo 1 i
+	printf "\e[1mUpdating vim help tags...\e[m"
+	vim -e -s -c "helptags /usr/share/vim/vimfiles/doc/" -c "quit"
+	printf " \e[1mdone\e[m\n"
 }
 
 post_upgrade() {
-  	echo 0 u
 	post_install
-	false
-  	echo 1 u
 }
 
 post_remove() {
-  	echo 0 r
 	post_install
-  	echo 1 r
 }

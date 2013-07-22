@@ -1,60 +1,32 @@
 # Maintainer: Matt Monaco <net 0x01b matt>
 
-__gitroot="git://github.com/mattn/gist-vim.git"
-__gitname="gist-vim.git"
-__gitcommit="b41d650e38828c908e5c86d32745c5068e694a03"
-
 pkgname=vim-gist
-pkgver=7.0
+pkgver=7.1.27.gfba218c
 pkgrel=1
 pkgdesc="vimscript for gist"
-arch=('any')
-url="http://www.vim.org/scripts/script.php?script_id=2423"
-license=('custom')
+arch=(any)
+url=https://github.com/mattn/gist-vim
+license=(custom)
 depends=(vim curl vim-webapi)
-optdepends=("git: git profile support")
-source=(vim-helptags.install)
-md5sums=('1ebde9fabb62b4e2a52feda480f1adf4')
+optdepends=("git: store settings in git config")
+source=(git://github.com/mattn/gist-vim.git)
+md5sums=(SKIP)
 install=vim-helptags.install
 
-build() {
-	_git_setup
+pkgver()
+{
+	cd "$srcdir"/gist-vim
+	# hopefully this gets tagged upstream
+	git tag 7.1 28c34862d5d1fb6013c78046f95493b309ec94f0
+	local ver=$(git describe --tags )
+	printf "%s" "${ver//-/.}"
 }
 
-package() {
-
-	cd "$srcdir/$pkgname-$pkgver"
-	
-	local vimdir="$pkgdir/usr/share/vim/vimfiles"
-	
+package()
+{
+	cd "$srcdir"/gist-vim
 	for f in autoload/* doc/* plugin/*; do
-		install -D "$f" "$vimdir/$f"
+		install -D "$f" "$pkgdir"/usr/share/vim/vimfiles/"$f"
 	done
-
-	install -D "README.mkd" "$pkgdir/usr/share/licenses/$pkgname/README.mkd"
-}
-
-_git_setup() {
-
-	cd "$SRCDEST"
-
-	if [[ ! -d "$__gitname" ]]; then
-		msg2 "Cloning git repository"
-		git clone --mirror "$__gitroot" "$__gitname"
-	else
-		msg2 "Updating git repository"
-		cd "$__gitname"
-		git fetch
-	fi
-
-	cd "$srcdir"
-	if [[ -d "$pkgname-$pkgver" ]]; then
-		msg2 "Removing previous build tree"
-		rm -fr "$pkgname-$pkgver"
-	fi
-
-	msg2 "Creating fresh build tree"
-	git clone --depth=1 "file://$SRCDEST/$__gitname" "$pkgname-$pkgver"
-	cd "$pkgname-$pkgver"
-	git checkout "$__gitcommit"
+	install -D README.mkd "$pkgdir"/usr/share/licenses/"$pkgname"/README.mkd
 }
