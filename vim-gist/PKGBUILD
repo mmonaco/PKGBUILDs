@@ -16,8 +16,6 @@ install=vim-helptags.install
 pkgver()
 {
 	cd "$srcdir"/gist-vim
-	# hopefully this gets tagged upstream
-	git tag 7.1 28c34862d5d1fb6013c78046f95493b309ec94f0
 	local ver=$(git describe --tags )
 	printf "%s" "${ver//-/.}"
 }
