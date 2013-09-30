@@ -3,9 +3,9 @@
 pkgname=liblmdb
 pkgver=0.9.8
 _commit=0f842a271085c198eb1df1ce3e177122c7a3c6ae
-pkgrel=0
-pkgdesc="An advanced general-purpose video player."
-url="http://www.mplayer2.org"
+pkgrel=1
+pkgdesc="Symas Lightning Memory-Mapped Database"
+url="http://symas.com/mdb"
 license=(custom:OpenLDAP)
 arch=(x86_64 i686)
 source=(git://git.openldap.org/openldap.git#commit=$_commit)
