@@ -3,14 +3,27 @@
 pkgname=liblmdb
 pkgver=0.9.8
 _commit=0f842a271085c198eb1df1ce3e177122c7a3c6ae
-pkgrel=1
+pkgrel=2
 pkgdesc="Symas Lightning Memory-Mapped Database"
 url="http://symas.com/mdb"
 license=(custom:OpenLDAP)
 arch=(x86_64 i686)
-source=(git://git.openldap.org/openldap.git#commit=$_commit)
-sha256sums=(SKIP)
+source=(
+	git://git.openldap.org/openldap.git#commit=$_commit
+	its7718-invalidate-cursor-when-db-gets-emptied.patch
+	)
+sha256sums=(
+	SKIP
+	639e65370e8e67503517b7b78bd61cba226e3b1774490746868e9d2dd860da4f
+	)
 makedepends=(git)
+options=(strip debug)
+
+prepare()
+{
+	cd "$srcdir/openldap"
+	patch -p1 -i "$srcdir"/its7718-invalidate-cursor-when-db-gets-emptied.patch
+}
 
 build()
 {
