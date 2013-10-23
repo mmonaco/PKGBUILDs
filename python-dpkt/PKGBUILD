@@ -1,0 +1,21 @@
+# Maintainer: Matt Monaco
+
+_name=dpkt
+_python=python2
+
+pkgname="$_python-$_name"
+pkgver=1.8
+pkgrel=1
+pkgdesc="Python packet creation / parsing library."
+url=http://code.google.com/p/dpkt
+arch=(any)
+license=(custom)
+source=(http://dpkt.googlecode.com/files/"$_name-$pkgver".tar.gz)
+sha256sums=(c56de2f9dc2f4654a356de0f0d458bb7b1c86c374988e8b4f358556f7dbe0507)
+depends=("$_python")
+
+package() {
+	cd "$srcdir/$_name-$pkgver"
+	"$_python" setup.py install --root="$pkgdir" --optimize=1
+	install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
