@@ -1,0 +1,29 @@
+# Maintainer: Matt Monaco
+
+pkgname=yubico-c
+pkgver=1.11
+pkgrel=1
+pkgdesc="YubiKey C low-level library (libyubikey)"
+url=http://yubico.com
+arch=(i686 x86_64)
+license=(BSD)
+makedepends=(git)
+source=(git://github.com/Yubico/yubico-c.git#commit=23f50b869fbe80d87f76f196c0e793053271d160)
+sha256sums=(SKIP)
+
+prepare() {
+	cd "$srcdir/$pkgname"
+	autoreconf --install
+}
+
+build() {
+	cd "$srcdir/$pkgname"
+	./configure --prefix=/usr --sysconfdir=/etc
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname"
+	make DESTDIR="$pkgdir" install
+	install -m644 -D COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
