@@ -1,0 +1,32 @@
+# Maintainer: Matt Monaco
+
+pkgname=yubikey-personalization
+pkgver=1.14.1
+pkgrel=1
+pkgdesc="YubiKey Personalization cross-platform library and tool"
+url=http://yubico.github.io/yubikey-personalization
+arch=(i686 x86_64)
+license=(BSD)
+depends=(yubico-c libusb json-c)
+makedepends=(git)
+source=(git://github.com/Yubico/"$pkgname".git#commit=d0a038d96a3a9a0073f22a5e7fd81a26dcc343a3)
+sha256sums=(SKIP)
+
+prepare() {
+	cd "$srcdir/$pkgname"
+	git submodule init
+	git submodule update
+	autoreconf --install
+}
+
+build() {
+	cd "$srcdir/$pkgname"
+	./configure --prefix=/usr --sysconfdir=/etc --with-udevrulesdir=/usr/lib/udev/rules.d
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname"
+	make DESTDIR="$pkgdir" install
+	install -m644 -D COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
