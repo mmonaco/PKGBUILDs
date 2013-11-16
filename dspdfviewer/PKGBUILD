@@ -1,6 +1,6 @@
 
-pkgname="dspdfviewer"
-pkgver=v1.10.1.5.gb1c6968
+pkgname=dspdfviewer
+pkgver=v1.10.1.7.gc84da60
 pkgrel=1
 pkgdesc="Dual-Screen PDF Viewer for latex-beamer"
 arch=(i686 x86_64)
@@ -17,13 +17,18 @@ pkgver() {
 	echo ${ver//-/.}
 }
 
-build() {
+prepare() {
 	cd "$srcdir"/"$pkgname"
-	cmake -DCMAKE_INSTALL_PREFIX="/usr/" -DSYSCONFDIR="/etc" -DCMAKE_BUILD_TYPE=Release 
+	mkdir build && cd build
+	cmake -DCMAKE_INSTALL_PREFIX="/usr" -DCMAKE_BUILD_TYPE=Release ..
+}
+
+build() {
+	cd "$srcdir"/"$pkgname"/build
 	make
 }
 
 package() {
-	cd "$srcdir"/"$pkgname"
+	cd "$srcdir"/"$pkgname"/build
 	make DESTDIR="$pkgdir" install
 }
