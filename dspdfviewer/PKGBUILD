@@ -1,0 +1,29 @@
+
+pkgname="dspdfviewer"
+pkgver=v1.10.1.5.gb1c6968
+pkgrel=1
+pkgdesc="Dual-Screen PDF Viewer for latex-beamer"
+arch=(i686 x86_64)
+url=https://github.com/dannyedel/dspdfviewer
+license=(GPL2)
+depends=(boost-libs poppler-qt)
+makedepends=(git cmake boost)
+source=(git+https://github.com/dannyedel/"$pkgname".git)
+md5sums=(SKIP)
+
+pkgver() {
+	cd "$srcdir"/"$pkgname"
+	local ver=$(git describe --tags )
+	echo ${ver//-/.}
+}
+
+build() {
+	cd "$srcdir"/"$pkgname"
+	cmake -DCMAKE_INSTALL_PREFIX="/usr/" -DSYSCONFDIR="/etc" -DCMAKE_BUILD_TYPE=Release 
+	make
+}
+
+package() {
+	cd "$srcdir"/"$pkgname"
+	make DESTDIR="$pkgdir" install
+}
