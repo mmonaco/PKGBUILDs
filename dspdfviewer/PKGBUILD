@@ -1,7 +1,7 @@
 
 pkgname=dspdfviewer
-pkgver=v1.10.1.7.gc84da60
-pkgrel=2
+pkgver=v1.10.1.9.g10331f3
+pkgrel=1
 pkgdesc="Dual-Screen PDF Viewer for latex-beamer"
 arch=(i686 x86_64)
 url=https://github.com/dannyedel/dspdfviewer
