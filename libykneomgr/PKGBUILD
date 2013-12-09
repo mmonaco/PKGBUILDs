@@ -2,12 +2,12 @@
 
 pkgname=libykneomgr
 pkgver=0.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Yubico YubiKey NEO Manager C Library"
 url=http://yubico.com
 arch=(i686 x86_64)
 license=(LGPLv2+)
-depends=(globalplatform)
+depends=(globalplatform gppcscconnectionplugin)
 makedepends=(git help2man gengetopt)
 source=(git://github.com/Yubico/"$pkgname".git#commit=c1e3a86e44a94b20e5d4ef99055311c8b7f61c4a)
 sha256sums=(SKIP)
