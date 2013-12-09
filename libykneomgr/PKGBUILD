@@ -1,0 +1,31 @@
+# Maintainer: Matt Monaco
+
+pkgname=libykneomgr
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Yubico YubiKey NEO Manager C Library"
+url=http://yubico.com
+arch=(i686 x86_64)
+license=(LGPLv2+)
+depends=(globalplatform)
+makedepends=(git help2man gengetopt)
+source=(git://github.com/Yubico/"$pkgname".git#commit=c1e3a86e44a94b20e5d4ef99055311c8b7f61c4a)
+sha256sums=(SKIP)
+
+prepare() {
+	cd "$srcdir/$pkgname"
+	sed -i 's|^ykneomgr.1: .*$|\0 $(builddir)/ykneomgr$(EXEEXT)|' src/Makefile.am
+	autoreconf --install
+}
+
+build() {
+	cd "$srcdir/$pkgname"
+	./configure --with-backend=globalplatform --prefix=/usr --sysconfdir=/etc
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname"
+	make DESTDIR="$pkgdir" install
+	install -m644 -D COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
