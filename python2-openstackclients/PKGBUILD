@@ -1,0 +1,20 @@
+pkgname=python2-openstackclients
+pkgver=1
+pkgrel=1
+pkgdesc="Meta package for all OpenStack python2-*client packages"
+arch=(any)
+license=(GPL)
+url=https://archlinux.monaco.cx
+depends=(
+	python2-keystoneclient
+	python2-novaclient
+	python2-neutronclient
+	python2-glanceclient
+	python2-cinderclient
+)
+source=()
+md5sums=()
+
+package() {
+	:
+}
