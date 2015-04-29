@@ -2,8 +2,8 @@
 
 pkgname=liblmdb
 pkgver=0.9.14
-_commit=b9495245b4b96ad6698849e1c1c816c346f27c3c
-pkgrel=1
+_commit=2f587ae081d076e3707360c5db086520c219d3ea
+pkgrel=2
 pkgdesc="Symas Lightning Memory-Mapped Database"
 url="http://symas.com/mdb"
 license=(custom:OpenLDAP)
