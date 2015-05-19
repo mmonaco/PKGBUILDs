@@ -1,0 +1,35 @@
+pkgname=radicale
+pkgver=0.10.30.g519a40d
+pkgrel=1
+pkgdesc="A Simple Calendar Server"
+arch=(any)
+url="http://radicale.org"
+license=(GPL3)
+depends=(python2)
+makedepends=(git)
+backup=(etc/radicale/config)
+source=(
+	radicale.service
+        "$pkgname"::"git://github.com/Kozea/Radicale.git"
+)
+md5sums=(
+	ee713ded9d4dc450099d6182374d3bc4
+	SKIP
+)
+
+pkgver() {
+	cd "$srcdir/$pkgname"
+	local _ver="$(git describe --tags)"
+	printf "%s" "${_ver//-/.}"
+}
+
+package() {
+
+	cd "$srcdir/$pkgname"
+
+	python2 setup.py install --root="$pkgdir" --optimize=1
+
+	install -m644 -D  config                     "$pkgdir"/etc/radicale/conf
+	install -m644 -D "$srcdir"/radicale.service  "$pkgdir"/usr/lib/systemd/system/radicale.service
+	install -m755 -D  radicale.wsgi              "$pkgdir"/usr/lib/radicale/radicale.wsgi
+} 

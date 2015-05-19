@@ -1,0 +1,8 @@
+[Unit]
+Description=A Simple Calendar Server
+
+[Service]
+ExecStart=/usr/bin/radicale
+
+[Install]
+WantedBy=multi-user.target
